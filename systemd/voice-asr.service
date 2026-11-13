@@ -1,0 +1,24 @@
+# systemd user service template: local Qwen3-ASR-1.7B service for fcitx5-vinput
+# Copy to ~/.config/systemd/user/voice-asr.service and adjust WorkingDirectory/ExecStart if needed.
+[Unit]
+Description=Local ASR service (Qwen3-ASR-1.7B, OpenAI-compatible) for fcitx5-vinput
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/voice-asr
+ExecStart=%h/voice-asr/.venv/bin/python app.py
+# Run offline using cached Hugging Face weights (remove or set to 0 on first run if needed)
+Environment=HF_HUB_OFFLINE=1
+Environment=VOICE_ASR_HOST=127.0.0.1
+Environment=VOICE_ASR_PORT=8765
+Environment=VOICE_ASR_SAVE_CORPUS=1
+# Environment=VOICE_ASR_CORPUS_DIR=%h/voice-asr/corpus
+# Environment=VOICE_ASR_CONTEXT_FILE=%h/voice-asr/context.txt
+Restart=on-failure
+RestartSec=5
+# Model load + CUDA init + warm-up takes ~5-15s
+TimeoutStartSec=120
+
+[Install]
+WantedBy=default.target
